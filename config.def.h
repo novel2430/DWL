@@ -125,6 +125,7 @@ static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { "wmenu-run", NULL };
 
 static const Key keys[] = {
+  //	{ MODKEY,                    XKB_KEY_r,          regions,        SHCMD("grim -g \"$(slurp)\"") },
 	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
 	/* modifier                  key                 function        argument */
 	{ MODKEY,                    XKB_KEY_p,          spawn,          {.v = menucmd} },
