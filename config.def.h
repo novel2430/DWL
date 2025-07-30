@@ -15,6 +15,11 @@ static const float unfocuseddim[]            = COLOR(0x00000020);
 /* This conforms to the xdg-protocol. Set the alpha to zero to restore the old behavior */
 static const float fullscreen_bg[]         = {0.0f, 0.0f, 0.0f, 0.0f}; /* You can also use glsl colors */
 
+/* For Center & Resize Floating */
+static const float center_resize_float_width_percent = 0.5;
+static const float center_resize_float_height_percent = 0.5;
+
+
 /* tagging - TAGCOUNT must be no greater than 31 */
 #define TAGCOUNT (9)
 
