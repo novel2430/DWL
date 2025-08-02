@@ -1,0 +1,56 @@
+diff --git a/dwl.c b/dwl.c
+index 2593c2f..2eeabfd 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -359,6 +359,8 @@ static Monitor *xytomon(double x, double y);
+ static void xytonode(double x, double y, struct wlr_surface **psurface,
+ 		Client **pc, LayerSurface **pl, double *nx, double *ny);
+ static void zoom(const Arg *arg);
++static void cycletag(const Arg *arg);
++static void remembercycletag(const Arg *arg);
+ 
+ /* variables */
+ static const char broken[] = "broken";
+@@ -3231,6 +3233,42 @@ zoom(const Arg *arg)
+ 	arrange(selmon);
+ }
+ 
++void
++cycletag(const Arg *arg)
++{
++  if(arg->i == NULL) return;
++  unsigned int current_tag = selmon->pertag->curtag - 1;
++  unsigned int next_tag = -1;
++  if(arg->i == -1) {
++    next_tag = (current_tag == 0) ? TAGCOUNT - 1 : (current_tag - 1) % TAGCOUNT;
++  }
++  else{
++    next_tag = (current_tag + 1) % TAGCOUNT;
++  }
++  if(next_tag >= 0) {
++    Arg new_arg = {.ui = 1 << next_tag};
++    view(&new_arg);
++  }
++}
++
++void
++remembercycletag(const Arg *arg)
++{
++  if(arg->i == NULL) return;
++  unsigned int current_tag = selmon->pertag->curtag - 1;
++  unsigned int next_tag = -1;
++  if(arg->i == -1) {
++    next_tag = (current_tag == 0) ? TAGCOUNT - 1 : (current_tag - 1) % TAGCOUNT;
++  }
++  else{
++    next_tag = (current_tag + 1) % TAGCOUNT;
++  }
++  if(next_tag >= 0) {
++    Arg new_arg = {.ui = 1 << next_tag};
++    rememberview(&new_arg);
++  }
++}
++
+ #ifdef XWAYLAND
+ void
+ activatex11(struct wl_listener *listener, void *data)
