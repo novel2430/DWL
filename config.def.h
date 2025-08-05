@@ -146,6 +146,7 @@ static const char *brightnessdowncmd[] = { "brightnessctl", "set", "10%-", NULL 
 static const char *playerctlplaypausecmd[] = { "playerctl", "play-pause", NULL };
 static const char *playerctlnextcmd[] = { "playerctl", "next", NULL };
 static const char *playerctlprevcmd[] = { "playerctl", "previous", NULL };
+static const char *restartwaybar[] = { "bash", "my-dwl-waybar", NULL };
 
 static const Key keys[] = {
 	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
@@ -168,6 +169,7 @@ static const Key keys[] = {
 	{ 0,                         XKB_KEY_XF86AudioPlay,       spawn, {.v = playerctlplaypausecmd} },
 	{ 0,                         XKB_KEY_XF86AudioNext,       spawn, {.v = playerctlnextcmd} },
 	{ 0,                         XKB_KEY_XF86AudioPrev,       spawn, {.v = playerctlprevcmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_B,          spawn,          {.v = restartwaybar} },
   // Other Stuff
 // { MODKEY,                    XKB_KEY_b,          togglebar,      {0} },
 	{ MODKEY,                    XKB_KEY_j,          focusstack,     {.i = +1} },
