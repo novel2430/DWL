@@ -34,6 +34,9 @@ static const Rule rules[] = {
 	*/
 	{ "firefox_example",  NULL,       1 << 8,       0,           1,		   -1 },
 	{ "zen",      NULL,       0,         0,           1,		         -1 },
+	{ "at.yrlf.wl_mirror", NULL,       0,         0,           1,		         -1 },
+	{ "wps",      NULL,       0,         0,           1,		         -1 },
+	{ "wpp",      NULL,       0,         0,           1,		         -1 },
 };
 
 /* layout(s) */
