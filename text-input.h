@@ -247,8 +247,7 @@ static void update_popup_position(struct dwl_input_method_popup *popup) {
 		cursor_rect.y += ly;
 
 		if (xdg_surface) {
-      struct wlr_box geo;
-      wlr_xdg_surface_get_geometry(xdg_surface, &geo);
+      struct wlr_box geo = xdg_surface->geometry;
 			cursor_rect.x -= geo.x;
 			cursor_rect.y -= geo.y;
 		}

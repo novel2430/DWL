@@ -84,7 +84,7 @@
 /* enums */
 enum { CurNormal, CurPressed, CurMove, CurResize }; /* cursor */
 enum { XDGShell, LayerShell, X11 }; /* client types */
-enum { LyrBg, LyrBottom, LyrTile, LyrFloat, LyrTop, LyrFS, LyrOverlay, LyrBlock, NUM_LAYERS }; /* scene layers */
+enum { LyrBg, LyrBottom, LyrTile, LyrFloat, LyrTop, LyrFS, LyrOverlay, LyrIMPopup, LyrBlock, NUM_LAYERS }; /* scene layers */
 
 typedef union {
 	int i;
@@ -455,6 +455,8 @@ static struct wlr_xwayland *xwayland;
 /* attempt to encapsulate suck into one file */
 #include "client.h"
 
+#include "text-input.h"
+
 /* function implementations */
 void
 applybounds(Client *c, struct wlr_box *bbox)
@@ -626,6 +628,8 @@ buttonpress(struct wl_listener *listener, void *data)
 	uint32_t mods;
 	Client *c;
 	const Button *b;
+  // For text-input
+  LayerSurface *l;
 
 	wlr_idle_notifier_v1_notify_activity(idle_notifier, seat);
 
@@ -637,7 +641,12 @@ buttonpress(struct wl_listener *listener, void *data)
 			break;
 
 		/* Change focus if the button was _pressed_ over a client */
-		xytonode(cursor->x, cursor->y, NULL, &c, NULL, NULL, NULL);
+		xytonode(cursor->x, cursor->y, NULL, &c, &l, NULL, NULL);
+
+    // For text-input
+    if (l && l->layer_surface && l->layer_surface->current.layer == ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY && l->scene->node.data == (void*)LyrIMPopup)
+      return;
+
 		if (c && (!client_is_unmanaged(c) || client_wants_focus(c)))
 			focusclient(c, 1);
 
@@ -712,6 +721,8 @@ cleanup(void)
 	wlr_xcursor_manager_destroy(cursor_mgr);
 
 	destroykeyboardgroup(&kb_group->destroy, NULL);
+
+	dwl_im_relay_finish(dwl_input_method_relay);
 
 	/* If it's not destroyed manually, it will cause a use-after-free of wlr_seat.
 	 * Destroy it until it's fixed on the wlroots side */
@@ -1459,6 +1470,10 @@ focusclient(Client *c, int lift)
 
 	if (!c) {
 		/* With no client, all we have left is to clear focus */
+
+		// clear text input focus state
+		dwl_im_relay_set_focus(dwl_input_method_relay, NULL);
+
 		wlr_seat_keyboard_notify_clear_focus(seat);
 		return;
 	}
@@ -1468,6 +1483,9 @@ focusclient(Client *c, int lift)
 
 	/* Have a client, so focus its top-level wlr_surface */
 	client_notify_enter(client_surface(c), wlr_seat_get_keyboard(seat));
+
+	// set text input focus
+	dwl_im_relay_set_focus(dwl_input_method_relay, client_surface(c));
 
 	/* Activate the new client */
 	client_activate_surface(client_surface(c), 1);
@@ -1665,10 +1683,12 @@ keypress(struct wl_listener *listener, void *data)
 	if (handled)
 		return;
 
-	wlr_seat_set_keyboard(seat, &group->wlr_group->keyboard);
-	/* Pass unhandled keycodes along to the client. */
-	wlr_seat_keyboard_notify_key(seat, event->time_msec,
-			event->keycode, event->state);
+	if (!dwl_im_keyboard_grab_forward_key(group, event)) {
+		wlr_seat_set_keyboard(seat, &group->wlr_group->keyboard);
+		/* Pass unhandled keycodes along to the client. */
+		wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode,
+									 event->state);
+	}
 }
 
 void
@@ -1678,10 +1698,12 @@ keypressmod(struct wl_listener *listener, void *data)
 	 * pressed. We simply communicate this to the client. */
 	KeyboardGroup *group = wl_container_of(listener, group, modifiers);
 
-	wlr_seat_set_keyboard(seat, &group->wlr_group->keyboard);
-	/* Send modifiers to the client. */
-	wlr_seat_keyboard_notify_modifiers(seat,
-			&group->wlr_group->keyboard.modifiers);
+	if (!dwl_im_keyboard_grab_forward_modifiers(group)) {
+		wlr_seat_set_keyboard(seat, &group->wlr_group->keyboard);
+		/* Send modifiers to the client. */
+		wlr_seat_keyboard_notify_modifiers(
+			seat, &group->wlr_group->keyboard.modifiers);
+	}
 }
 
 int
@@ -2645,6 +2667,13 @@ setup(void)
 	wl_signal_add(&output_mgr->events.apply, &output_mgr_apply);
 	wl_signal_add(&output_mgr->events.test, &output_mgr_test);
 
+	/* create text_input-, and input_method-protocol relevant globals */
+	input_method_manager = wlr_input_method_manager_v2_create(dpy);
+	text_input_manager = wlr_text_input_manager_v3_create(dpy);
+
+	dwl_input_method_relay = calloc(1, sizeof(*dwl_input_method_relay));
+	dwl_input_method_relay = dwl_im_relay_create();
+
 	/* Make sure XWayland clients don't connect to the parent X server,
 	 * e.g when running in the x11 backend or the wayland backend and the
 	 * compositor has Xwayland support */
@@ -3024,6 +3053,10 @@ xytonode(double x, double y, struct wlr_surface **psurface,
 		if (!(node = wlr_scene_node_at(&layers[layer]->node, x, y, nx, ny)))
 			continue;
 
+    // skip text-input LyrIMPopup layer
+		if (layer == LyrIMPopup)
+			continue;
+
 		if (node->type == WLR_SCENE_NODE_BUFFER)
 			surface = wlr_scene_surface_try_from_buffer(
 					wlr_scene_buffer_from_node(node))->surface;
@@ -3033,6 +3066,13 @@ xytonode(double x, double y, struct wlr_surface **psurface,
 		if (c && c->type == LayerShell) {
 			c = NULL;
 			l = pnode->data;
+
+      // skip text-input LyrIMPopup layer
+      if (layer == LyrIMPopup) {
+				l = NULL;
+				continue;
+			}
+
 		}
 	}
 
