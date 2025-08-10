@@ -382,6 +382,8 @@ static void xytonode(double x, double y, struct wlr_surface **psurface,
 		Client **pc, LayerSurface **pl, double *nx, double *ny);
 static void zoom(const Arg *arg);
 static void regions(const Arg *arg);
+static void cycletag(const Arg *arg);
+static void remembercycletag(const Arg *arg);
 
 /* variables */
 static pid_t child_pid = -1;
@@ -3614,6 +3616,42 @@ regions(const Arg *arg)
 				dprintf(pipefd[1], "%d,%d %dx%d\n",
 				        c->geom.x, c->geom.y, c->geom.width, c->geom.height);
 	close(pipefd[1]);
+}
+
+void
+cycletag(const Arg *arg)
+{
+  if(arg->i == NULL) return;
+  unsigned int current_tag = selmon->pertag->curtag - 1;
+  unsigned int next_tag = -1;
+  if(arg->i == -1) {
+    next_tag = (current_tag == 0) ? TAGCOUNT - 1 : (current_tag - 1) % TAGCOUNT;
+  }
+  else{
+    next_tag = (current_tag + 1) % TAGCOUNT;
+  }
+  if(next_tag >= 0) {
+    Arg new_arg = {.ui = 1 << next_tag};
+    view(&new_arg);
+  }
+}
+
+void
+remembercycletag(const Arg *arg)
+{
+  if(arg->i == NULL) return;
+  unsigned int current_tag = selmon->pertag->curtag - 1;
+  unsigned int next_tag = -1;
+  if(arg->i == -1) {
+    next_tag = (current_tag == 0) ? TAGCOUNT - 1 : (current_tag - 1) % TAGCOUNT;
+  }
+  else{
+    next_tag = (current_tag + 1) % TAGCOUNT;
+  }
+  if(next_tag >= 0) {
+    Arg new_arg = {.ui = 1 << next_tag};
+    rememberview(&new_arg);
+  }
 }
 
 #ifdef XWAYLAND
