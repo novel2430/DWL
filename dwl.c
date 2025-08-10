@@ -3069,8 +3069,31 @@ togglefloating(const Arg *arg)
 {
 	Client *sel = focustop(selmon);
 	/* return if fullscreen */
-	if (sel && !sel->isfullscreen)
+	if (sel && !sel->isfullscreen){
+
+
+    // center & resize for floating
+    if(!sel->isfloating){
+      struct wlr_box *m = &sel->mon->w;
+
+      float percent_width = 0.6f;
+      float percent_height = 0.4f;
+
+      int neww = m->width * center_resize_float_width_percent;
+      int newh = m->height * center_resize_float_height_percent;
+      int newx = m->x + (m->width - neww) / 2;
+      int newy = m->y + (m->height - newh) / 2;
+
+      resize(sel, (struct wlr_box){
+          .x = newx,
+          .y = newy,
+          .width = neww,
+          .height = newh
+      }, 1);
+    }
+
 		setfloating(sel, !sel->isfloating);
+  }
 }
 
 void
