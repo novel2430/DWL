@@ -37,6 +37,7 @@ static const Rule rules[] = {
 	{ "at.yrlf.wl_mirror", NULL,       0,         0,           1,		         -1 },
 	{ "wps",      NULL,       0,         1,           1,		         -1 },
 	{ "wpp",      NULL,       0,         1,           1,		         -1 },
+	{ "wemeetapp",NULL,       0,         1,           1,		         -1 },
 };
 
 /* layout(s) */
