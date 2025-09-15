@@ -132,12 +132,12 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 
 /* commands */
 static const char *termcmd[] = { "wezterm", NULL };
-static const char *menucmd[] = { "wofi", "--show", "drun", NULL };
-static const char *runmenucmd[] = { "wofi", "--show", "run", NULL };
+static const char *menucmd[] = { "rofi", "-show", "drun", NULL };
+static const char *runmenucmd[] = { "rofi", "-show", "run", NULL };
 static const char *browsercmd[] = { "zen-browser", NULL };
 static const char *lockcmd[] = { "my-swaylock", "idle", NULL };
 static const char *clipboardcmd[] = { "wlroot-clipboard", NULL };
-static const char *powermenucmd[] = { "wofi-power-menu", NULL };
+static const char *powermenucmd[] = { "rofi-power-menu", NULL };
 static const char *screenshotcmd[] = { "grim-slurp-screenshot", "full", NULL };
 static const char *volumemutecmd[] = { "my-volume", "mute", NULL };
 static const char *volumedowncmd[] = { "my-volume", "down", NULL };
