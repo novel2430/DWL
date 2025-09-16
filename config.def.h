@@ -196,6 +196,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_CTRL,  XKB_KEY_k,          remembercycletag, {.i = -1} },
 	{ MODKEY|WLR_MODIFIER_CTRL,  XKB_KEY_Right,      remembercycletag, {.i = +1} },
 	{ MODKEY|WLR_MODIFIER_CTRL,  XKB_KEY_Left,       remembercycletag, {.i = -1} },
+	{ MODKEY,                    XKB_KEY_Tab,        cycleclients_global, {.i = +1} },
 	// { MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_parenright, tag,            {.ui = ~0} },
 	// { MODKEY,                    XKB_KEY_comma,      focusmon,       {.i = WLR_DIRECTION_LEFT} },
 	// { MODKEY,                    XKB_KEY_period,     focusmon,       {.i = WLR_DIRECTION_RIGHT} },

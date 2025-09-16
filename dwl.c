@@ -384,6 +384,7 @@ static void zoom(const Arg *arg);
 static void regions(const Arg *arg);
 static void cycletag(const Arg *arg);
 static void remembercycletag(const Arg *arg);
+static void cycleclients_global(const Arg *arg);
 
 /* variables */
 static pid_t child_pid = -1;
@@ -3652,6 +3653,120 @@ remembercycletag(const Arg *arg)
     Arg new_arg = {.ui = 1 << next_tag};
     rememberview(&new_arg);
   }
+}
+
+void
+cycleclients_global(const Arg *arg)
+{
+    if (!selmon) return;
+
+    int dir = (arg && arg->i < 0) ? -1 : +1;
+
+    Client *sel = focustop(selmon);
+    if (sel && (sel->isfullscreen && !client_has_children(sel)))
+        return;
+
+    /* 计算“当前 tag”的掩码；若出现全选(TAGMASK)等情况，则退回到当前 tagset */
+    unsigned int curmask =
+        (selmon->pertag && selmon->pertag->curtag >= 1 && selmon->pertag->curtag <= TAGCOUNT)
+            ? (1u << (selmon->pertag->curtag - 1))
+            : selmon->tagset[selmon->seltags];
+
+    /* 先在“当前 tag”里前进/后退地找，不在当前 tag 内回绕 */
+    if (dir > 0) {
+        if (sel) {
+            Client *c;
+            for (c = wl_container_of(sel->link.next, sel, link);
+                 &c->link != &clients;
+                 c = wl_container_of(c->link.next, c, link)) {
+                if (c->mon == selmon && (((c->tags & curmask) != 0) || c->issticky)) {
+                    focusclient(c, 1);
+                    arrange(selmon);
+                    return;
+                }
+            }
+        } else {
+            Client *c;
+            wl_list_for_each(c, &clients, link) {
+                if (c->mon == selmon && (((c->tags & curmask) != 0) || c->issticky)) {
+                    focusclient(c, 1);
+                    arrange(selmon);
+                    return;
+                }
+            }
+        }
+    } else { /* dir < 0 */
+        if (sel) {
+            Client *c;
+            for (c = wl_container_of(sel->link.prev, sel, link);
+                 &c->link != &clients;
+                 c = wl_container_of(c->link.prev, c, link)) {
+                if (c->mon == selmon && (((c->tags & curmask) != 0) || c->issticky)) {
+                    focusclient(c, 1);
+                    arrange(selmon);
+                    return;
+                }
+            }
+        } else {
+            Client *c;
+            for (c = wl_container_of(clients.prev, sel, link);
+                 &c->link != &clients;
+                 c = wl_container_of(c->link.prev, c, link)) {
+                if (c->mon == selmon && (((c->tags & curmask) != 0) || c->issticky)) {
+                    focusclient(c, 1);
+                    arrange(selmon);
+                    return;
+                }
+            }
+        }
+    }
+
+    /* 当前 tag 到头/到尾：跨 tag 继续（不在当前 tag 内回绕） */
+    unsigned int curidx =
+        (selmon->pertag && selmon->pertag->curtag >= 1) ? (selmon->pertag->curtag - 1) : 0;
+
+    for (int step = 0; step < TAGCOUNT; ++step) {
+        curidx = (dir > 0)
+               ? ((curidx + 1) % TAGCOUNT)
+               : ((curidx + TAGCOUNT - 1) % TAGCOUNT);
+
+        unsigned int mask = 1u << curidx;
+
+        /* 先在目标 tag 里预选一个候选窗口（正向选“第一个”，反向选“最后一个”） */
+        Client *candidate = NULL;
+        if (dir > 0) {
+            Client *c;
+            wl_list_for_each(c, &clients, link) {
+                if (c->mon == selmon && (((c->tags & mask) != 0) || c->issticky)) {
+                    candidate = c;
+                    break;
+                }
+            }
+        } else {
+            Client *c;
+            for (c = wl_container_of(clients.prev, sel, link);
+                 &c->link != &clients;
+                 c = wl_container_of(c->link.prev, c, link)) {
+                if (c->mon == selmon && (((c->tags & mask) != 0) || c->issticky)) {
+                    candidate = c;
+                    break;
+                }
+            }
+        }
+
+        if (candidate) {
+            Arg a = {.ui = mask};
+            /* 记忆切换（若你不想记忆，改用 view(&a) 即可） */
+            // view(&a);
+            rememberview(&a);
+            focusclient(candidate, 1);
+            arrange(selmon);
+            return;
+        }
+        /* 该 tag 为空，继续找下一/上一 tag */
+    }
+
+    /* 所有 tag 都没有可聚焦窗口：不做任何事 */
 }
 
 #ifdef XWAYLAND
