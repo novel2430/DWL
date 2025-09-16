@@ -148,6 +148,7 @@ static const char *playerctlplaypausecmd[] = { "playerctl", "play-pause", NULL }
 static const char *playerctlnextcmd[] = { "playerctl", "next", NULL };
 static const char *playerctlprevcmd[] = { "playerctl", "previous", NULL };
 static const char *restartwaybar[] = { "bash", "my-dwl-waybar", NULL };
+static const char *clashswitcher[] = { "clash-switcher", NULL };
 
 static const Key keys[] = {
 	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
@@ -159,6 +160,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_F,          spawn,          {.v = browsercmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_L,          spawn,          {.v = lockcmd} },
 	{ MODKEY,                    XKB_KEY_c,          spawn,          {.v = clipboardcmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_C,          spawn,          {.v = clashswitcher} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_P,          spawn,          {.v = powermenucmd} },
   { 0,                         XKB_KEY_Print,      spawn,          {.v = screenshotcmd} },
 	{ MODKEY,                    XKB_KEY_p,          regions,        SHCMD("grim-slurp-screenshot select") },
