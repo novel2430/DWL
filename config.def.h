@@ -164,6 +164,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_C,          spawn,          {.v = clashswitcher} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_P,          spawn,          {.v = powermenucmd} },
   { 0,                         XKB_KEY_Print,      spawn,          {.v = screenshotcmd} },
+  { MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S,          spawn,          {.v = screenshotcmd} },
 	{ MODKEY,                    XKB_KEY_p,          regions,        SHCMD("grim-slurp-screenshot") },
 	{ 0,                         XKB_KEY_XF86AudioRaiseVolume, spawn,{.v = volumeupcmd} },
 	{ 0,                         XKB_KEY_XF86AudioLowerVolume, spawn,{.v = volumedowncmd} },
