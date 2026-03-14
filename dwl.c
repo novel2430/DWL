@@ -140,7 +140,7 @@ typedef struct {
 #endif
 	unsigned int bw;
 	uint32_t tags;
-	int isfloating, isurgent, isfullscreen, issticky, neverdim;
+	int isfloating, isurgent, isfullscreen, neverdim, issticky;
 	uint32_t resize; /* configure serial of a pending resize */
 } Client;
 
@@ -440,10 +440,8 @@ static struct wlr_box sgeom;
 static struct wl_list mons;
 static Monitor *selmon;
 static int DIMOPT = 1;
-
 static struct zdwl_ipc_manager_v2_interface dwl_manager_implementation = {.release = dwl_ipc_manager_release, .get_output = dwl_ipc_manager_get_output};
 static struct zdwl_ipc_output_v2_interface dwl_output_implementation = {.release = dwl_ipc_output_release, .set_tags = dwl_ipc_output_set_tags, .set_layout = dwl_ipc_output_set_layout, .set_client_tags = dwl_ipc_output_set_client_tags};
-
 
 /* global event handlers */
 static struct wl_listener cursor_axis = {.notify = axisnotify};
@@ -494,19 +492,20 @@ static struct wlr_xwayland *xwayland;
 /* attempt to encapsulate suck into one file */
 #include "client.h"
 
-#include "text-input.h"
-
 struct Pertag {
 	unsigned int curtag, prevtag; /* current and previous tag */
 	int nmasters[TAGCOUNT + 1]; /* number of windows in master area */
 	float mfacts[TAGCOUNT + 1]; /* mfacts per tag */
 	unsigned int sellts[TAGCOUNT + 1]; /* selected layouts */
 	const Layout *ltidxs[TAGCOUNT + 1][2]; /* matrix of tags and layouts indexes  */
+
   // For Remember Client & Tag
   Client *prev_focused[TAGCOUNT];
   uint32_t remember_tag[TAGCOUNT + 1];
 };
 
+
+#include "text-input.h"
 
 /* function implementations */
 void
@@ -1435,12 +1434,14 @@ destroynotify(struct wl_listener *listener, void *data)
 		wl_list_remove(&c->maximize.link);
 	}
 
+
   if (c->mon && c->mon->pertag) {
-   for (int i = 0; i < TAGCOUNT; i++) {
-     if (c->mon->pertag->prev_focused[i] == c)
-       c->mon->pertag->prev_focused[i] = NULL;
-   }
+    for (int i = 0; i < TAGCOUNT; i++) {
+      if (c->mon->pertag->prev_focused[i] == c)
+        c->mon->pertag->prev_focused[i] = NULL;
+    }
   }
+
 	free(c);
 }
 
@@ -1732,9 +1733,9 @@ focusclient(Client *c, int lift)
 
     // Store focus client
     if (selmon && selmon->pertag) {
-     int tagidx = selmon->pertag->curtag - 1;
-     if (tagidx >= 0 && tagidx < TAGCOUNT)
-       selmon->pertag->prev_focused[tagidx] = c;
+      int tagidx = selmon->pertag->curtag - 1;
+      if (tagidx >= 0 && tagidx < TAGCOUNT)
+        selmon->pertag->prev_focused[tagidx] = c;
     }
 
 		/* Don't change border color if there is an exclusive focus or we are
@@ -1932,7 +1933,8 @@ keybinding(uint32_t mods, xkb_keysym_t sym)
 	const Key *k;
 	for (k = keys; k < END(keys); k++) {
 		if (CLEANMASK(mods) == CLEANMASK(k->mod)
-				&& sym == k->keysym && k->func) {
+				&& xkb_keysym_to_lower(sym) == xkb_keysym_to_lower(k->keysym)
+				&& k->func) {
 			k->func(&k->arg);
 			return 1;
 		}
@@ -2956,15 +2958,14 @@ setup(void)
 	wl_signal_add(&output_mgr->events.apply, &output_mgr_apply);
 	wl_signal_add(&output_mgr->events.test, &output_mgr_test);
 
-	wl_global_create(dpy, &zdwl_ipc_manager_v2_interface, 2, NULL, dwl_ipc_manager_bind);
-
-
 	/* create text_input-, and input_method-protocol relevant globals */
 	input_method_manager = wlr_input_method_manager_v2_create(dpy);
 	text_input_manager = wlr_text_input_manager_v3_create(dpy);
 
 	dwl_input_method_relay = calloc(1, sizeof(*dwl_input_method_relay));
 	dwl_input_method_relay = dwl_im_relay_create();
+
+	wl_global_create(dpy, &zdwl_ipc_manager_v2_interface, 2, NULL, dwl_ipc_manager_bind);
 
 	/* Make sure XWayland clients don't connect to the parent X server,
 	 * e.g when running in the x11 backend or the wayland backend and the
@@ -3768,6 +3769,8 @@ cycleclients_global(const Arg *arg)
 
     /* 所有 tag 都没有可聚焦窗口：不做任何事 */
 }
+
+
 
 #ifdef XWAYLAND
 void
