@@ -36,10 +36,14 @@ static const Rule rules[] = {
     { "Gimp_example",     NULL,       0,            1,           0, -1 },
     */
     {"firefox_example", NULL, 1 << 8, 0, 1, -1},
-    {"zen", NULL, 0, 0, 1, -1},
+    {"app.zen_browser.zen", NULL, 0, 0, 1, -1},
+    {"org.mozilla.firefox", NULL, 0, 0, 1, -1},
     {"at.yrlf.wl_mirror", NULL, 0, 0, 1, -1},
-    {"wps", NULL, 0, 1, 1, -1},
-    {"wpp", NULL, 0, 1, 1, -1},
+    {"io.github.celluloid_player.Celluloid", NULL, 0, 0, 1, -1},
+    {"mpv", NULL, 0, 0, 1, -1},
+    {"vlc", NULL, 0, 0, 1, -1},
+    {"wps", NULL, 0, 0, 1, -1},
+    {"wpp", NULL, 0, 0, 1, -1},
     {"wemeetapp", NULL, 0, 1, 1, -1},
 };
 
