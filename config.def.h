@@ -38,6 +38,7 @@ static const Rule rules[] = {
     {"firefox_example", NULL, 1 << 8, 0, 1, -1},
     {"app.zen_browser.zen", NULL, 0, 0, 1, -1},
     {"org.mozilla.firefox", NULL, 0, 0, 1, -1},
+    {"firefox-esr", NULL, 0, 0, 1, -1},
     {"at.yrlf.wl_mirror", NULL, 0, 0, 1, -1},
     {"io.github.celluloid_player.Celluloid", NULL, 0, 0, 1, -1},
     {"mpv", NULL, 0, 0, 1, -1},
@@ -153,7 +154,7 @@ static const enum libinput_config_tap_button_map button_map =
 static const char *termcmd[] = {"wezterm", NULL};
 static const char *menucmd[] = {"rofi", "-show", "drun", NULL};
 static const char *runmenucmd[] = {"rofi", "-show", "run", NULL};
-static const char *browsercmd[] = {"org.mozilla.firefox", NULL};
+static const char *browsercmd[] = {"firefox", NULL};
 static const char *lockcmd[] = {"my-swaylock", "idle", NULL};
 static const char *clipboardcmd[] = {"wlroot-clipboard", NULL};
 static const char *powermenucmd[] = {"rofi-power-menu", NULL};
