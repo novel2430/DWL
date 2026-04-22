@@ -18,6 +18,8 @@ static const float unfocuseddim[] = COLOR(0x00000020);
 static const float fullscreen_bg[] = {0.0f, 0.0f, 0.0f,
                                       0.0f}; /* You can also use glsl colors */
 
+static const int warp_cursor_on_focusmon = 1;
+
 /* For Center & Resize Floating */
 static const float center_resize_float_width_percent = 0.5;
 static const float center_resize_float_height_percent = 0.5;

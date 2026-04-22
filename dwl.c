@@ -415,6 +415,7 @@ static void rememberview(const Arg *arg);
 static void view(const Arg *arg);
 static void virtualkeyboard(struct wl_listener *listener, void *data);
 static void virtualpointer(struct wl_listener *listener, void *data);
+static void warpcursortomoncenter(Monitor *m);
 static Monitor *xytomon(double x, double y);
 static void xytonode(double x, double y, struct wlr_surface **psurface,
                      Client **pc, LayerSurface **pl, double *nx, double *ny);
@@ -1808,11 +1809,16 @@ void focusclient(Client *c, int lift) {
 
 void focusmon(const Arg *arg) {
   int i = 0, nmons = wl_list_length(&mons);
+  Monitor *oldmon = selmon;
   if (nmons) {
     do /* don't switch to disabled mons */
       selmon = dirtomon(arg->i);
     while (!selmon->wlr_output->enabled && i++ < nmons);
   }
+
+  if (warp_cursor_on_focusmon && selmon && selmon != oldmon)
+    warpcursortomoncenter(selmon);
+
   focusclient(focustop(selmon), 1);
 }
 
@@ -3469,6 +3475,21 @@ void virtualpointer(struct wl_listener *listener, void *data) {
   wlr_cursor_attach_input_device(cursor, device);
   if (event->suggested_output)
     wlr_cursor_map_input_to_output(cursor, device, event->suggested_output);
+}
+
+void warpcursortomoncenter(Monitor *m) {
+  double x, y;
+
+  if (!m || !m->wlr_output || !m->wlr_output->enabled)
+    return;
+
+  x = m->m.x + m->m.width / 2.0;
+  y = m->m.y + m->m.height / 2.0;
+
+  wlr_cursor_warp_closest(cursor, NULL, x, y);
+
+  /* 刷新 pointer focus / cursor image */
+  motionnotify(0, NULL, 0, 0, 0, 0);
 }
 
 Monitor *xytomon(double x, double y) {
