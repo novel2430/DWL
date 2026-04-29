@@ -19,6 +19,7 @@ static const float fullscreen_bg[] = {0.0f, 0.0f, 0.0f,
                                       0.0f}; /* You can also use glsl colors */
 
 static const int warp_cursor_on_focusmon = 1;
+static const unsigned int cursor_size = 24;
 
 /* For Center & Resize Floating */
 static const float center_resize_float_width_percent = 0.5;
@@ -153,7 +154,7 @@ static const enum libinput_config_tap_button_map button_map =
   }
 
 /* commands */
-static const char *termcmd[] = {"ghostty", NULL};
+static const char *termcmd[] = {"wezterm", NULL};
 static const char *menucmd[] = {"rofi", "-show", "drun", NULL};
 static const char *runmenucmd[] = {"rofi", "-show", "run", NULL};
 static const char *browsercmd[] = {"firefox", NULL};
