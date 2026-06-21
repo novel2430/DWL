@@ -7,7 +7,18 @@ static const int sloppyfocus = 0; /* focus follows mouse */
 static const int bypass_surface_visibility =
     0; /* 1 means idle inhibitors will disable idle tracking even if it's
           surface isn't visible  */
+
+static const int enablegaps = 1; /* 1 means gaps are enabled */
+static const int smartgaps =
+    0; /* 1 means no outer gap when there is only one window */
+static const int monoclegaps = 1; /* 1 means outer gaps in monocle layout */
 static const unsigned int borderpx = 2; /* border pixel of windows */
+static const unsigned int gappih = 7;   /* horiz inner gap between windows */
+static const unsigned int gappiv = 7;   /* vert inner gap between windows */
+static const unsigned int gappoh =
+    0; /* horiz outer gap between windows and screen edge */
+static const unsigned int gappov =
+    0; /* vert outer gap between windows and screen edge */
 static const float rootcolor[] = COLOR(0x222222ff);
 static const float bordercolor[] = COLOR(0x3f3f36ff);
 static const float focuscolor[] = COLOR(0xeceff4ff);
