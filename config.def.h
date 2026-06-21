@@ -165,7 +165,8 @@ static const enum libinput_config_tap_button_map button_map =
   }
 
 /* commands */
-static const char *termcmd[] = {"wezterm", NULL};
+// static const char *termcmd[] = {"wezterm", NULL};
+static const char *termcmd[] = {"alacritty", NULL};
 static const char *menucmd[] = {"rofi", "-show", "drun", NULL};
 static const char *runmenucmd[] = {"rofi", "-show", "run", NULL};
 static const char *browsercmd[] = {"firefox", NULL};
