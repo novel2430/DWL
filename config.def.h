@@ -8,7 +8,7 @@ static const int bypass_surface_visibility =
     0; /* 1 means idle inhibitors will disable idle tracking even if it's
           surface isn't visible  */
 
-static const int enablegaps = 1; /* 1 means gaps are enabled */
+static const int enablegaps = 0; /* 1 means gaps are enabled */
 static const int smartgaps =
     0; /* 1 means no outer gap when there is only one window */
 static const int monoclegaps = 1; /* 1 means outer gaps in monocle layout */
