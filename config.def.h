@@ -53,6 +53,7 @@ static const Rule rules[] = {
     {"app.zen_browser.zen", NULL, 0, 0, 1, -1},
     {"org.mozilla.firefox", NULL, 0, 0, 1, -1},
     {"firefox-esr", NULL, 0, 0, 1, -1},
+    {"Firefox", NULL, 0, 0, 1, -1},
     {"at.yrlf.wl_mirror", NULL, 0, 0, 1, -1},
     {"io.github.celluloid_player.Celluloid", NULL, 0, 0, 1, -1},
     {"mpv", NULL, 0, 0, 1, -1},
